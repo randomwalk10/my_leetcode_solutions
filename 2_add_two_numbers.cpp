@@ -31,19 +31,25 @@ public:
     ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
 		ListNode* temp1 = l1;
 		ListNode* temp2 = l2;
-		ListNode* result = new ListNode(0);
-		ListNode* tempr = result;
+		ListNode* result = NULL;
+		ListNode* tempr = NULL;
 		int carry = 0;
 		while(temp1 || temp2 || carry){
 			int new_val = carry + ( (temp1) ? temp1->val : 0 ) + ( (temp2) ? temp2->val : 0 );
 			carry = new_val / 10;
 			new_val = new_val % 10;
 			ListNode* new_digit = new ListNode(new_val);
-			tempr->next = new_digit;
-			tempr = tempr->next;
+			if(result){
+				tempr->next = new_digit;
+				tempr = tempr->next;
+			}
+			else{
+				tempr = new_digit;
+				result = tempr;
+			}
 			temp1 = (temp1) ? temp1->next : temp1;
 			temp2 = (temp2) ? temp2->next : temp2;
 		}
-		return result->next;
+		return result;
     }
 };
