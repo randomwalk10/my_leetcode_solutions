@@ -15,43 +15,48 @@ using namespace std;
 class Solution {
 public:
     vector<int> searchRange(vector<int>& nums, int target) {
-		vector<int> result;
-		if(nums.empty()){
-			result.push_back(-1);
-			result.push_back(-1);
-			return result;
+		if( (nums.empty()) || (nums.front()>target) || (nums.back()<target) ){
+			vector<int> error(2, -1);
+			return error;
 		}
 
-		int l, r, m;
-
-		l = 0;
-		r = (int)nums.size() - 1;
-		m = (l+r)/2;
-		while(l<r){
-			if(nums[m]>target) r = m - 1;
-			else if(nums[m]<target) l = m + 1;
-			else if(m==0) break;
-			else if(nums[m-1]!=target) break;
-			else r = m - 1;
-			m = (l+r)/2;
+		vector<int> output;
+		//find the left index
+		if(nums.front()==target) output.push_back(0);
+		else{
+			//nums[l] < target, nums[r] >= target
+			int l = 0;
+			int r = nums.size() - 1;
+			while( (r-l)>1 ){
+				int m = (l+r)/2;
+				if(nums[m]>=target) r = m;
+				else l = m;
+			}
+			if(nums[r]==target) output.push_back(r);
+			else{
+				vector<int> error(2, -1);
+				return error;
+			}
 		}
-		if(nums[m]!=target) m = -1;
-		result.push_back(m);
 
-		l = (m>-1) ? m : 0;
-		r = (int)nums.size() - 1;
-		m = (l+r)/2;
-		while(l<r){
-			if(nums[m]>target) r = m - 1;
-			else if(nums[m]<target) l = m + 1;
-			else if(m==(int)(nums.size()-1)) break;
-			else if(nums[m+1]!=target) break;
-			else l = m + 1;
-			m = (l+r)/2;
+		//find the right index
+		if(nums.back()==target) output.push_back(nums.size()-1);
+		else{
+			//nums[l] <= target, nums[r] > target
+			int l = 0;
+			int r = nums.size() - 1;
+			while( (r-l)>1 ){
+				int m = (l+r)/2;
+				if(nums[m]<=target) l = m;
+				else r = m;
+			}
+			if(nums[l]==target) output.push_back(l);
+			else{
+				vector<int> error(2, -1);
+				return error;
+			}
 		}
-		if(nums[m]!=target) m = -1;
-		result.push_back(m);
-
-		return result;
+		//return
+		return output;
     }
 };

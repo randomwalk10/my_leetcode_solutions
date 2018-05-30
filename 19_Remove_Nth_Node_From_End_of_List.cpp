@@ -26,29 +26,29 @@ struct ListNode {
  ListNode(int x) : val(x), next(NULL) {}
 };
 
-#include <queue>
+#include <stack>
 using namespace std;
 
 class Solution {
 public:
     ListNode* removeNthFromEnd(ListNode* head, int n) {
-		queue<ListNode*> past_nodes;
-		for(int i=0; i<(n+1); ++i) past_nodes.push(NULL);
+		stack<ListNode*> node_s;
+		//push all nodes into stack
 		ListNode* temp = head;
 		while(temp){
-			past_nodes.push(temp);
-			past_nodes.pop();
+			node_s.push(temp);
 			temp = temp->next;
 		}
-		if(past_nodes.front()==NULL){
-			return head->next;
+		//trace back to nth order backwards
+		for(int i=0; i<n; ++i){
+			temp = node_s.top();
+			node_s.pop();
 		}
-		else{
-			ListNode* prev_node = past_nodes.front();
-			ListNode* temp_node = prev_node->next;
-			prev_node->next = prev_node->next->next;
-			delete temp_node;
-		}
+		//reconnect
+		if(node_s.empty()) head = temp->next;
+		else node_s.top()->next = temp->next;
+		delete temp;
+		//return
 		return head;
     }
 };

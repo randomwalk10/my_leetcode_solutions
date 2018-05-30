@@ -25,7 +25,6 @@ For k = 3, you should return: 3->2->1->4->5
  * };
  */
 #define NULL 0
-#include <vector>
 using namespace std;
 
 struct ListNode {
@@ -38,24 +37,36 @@ class Solution {
 public:
     ListNode* reverseKGroup(ListNode* head, int k) {
 		if(k<=1) return head;
+		ListNode* out = head;
+		//count the length
+		int len = 0;
 		ListNode* temp = head;
-		vector<ListNode*> saved_nodes;
-		//transverse k nodes
-		for(int i=0; i<k; ++i){
-			if(temp){
-				saved_nodes.push_back(temp);
-				temp = temp->next;
+		while(temp){
+			temp = temp->next;
+			len++;
+		}
+		//compute the number of segments
+		int segs = len/k;
+		//perform reversing of each segments
+		ListNode* prev_tail = NULL;
+		ListNode* cur_ptr = head;
+		ListNode* prev_ptr = NULL;
+		for(int i=0; i<segs; ++i){
+			//reverse
+			ListNode* temp_tail = cur_ptr;
+			for(int j=0; j<k; ++j){
+				ListNode* temp_ptr = cur_ptr->next;
+				cur_ptr->next = prev_ptr;
+				prev_ptr = cur_ptr;
+				cur_ptr = temp_ptr;
 			}
-			else return head;
+			//reconnect and update
+			if(prev_tail) prev_tail->next = prev_ptr;
+			else out = prev_ptr;
+			temp_tail->next = cur_ptr;
+			prev_tail = temp_tail;
 		}
-		//reverse k nodes
-		for(int i=0; i<k-1; ++i){
-			int idx = k-1-i;
-			saved_nodes[idx]->next = saved_nodes[idx-1];
-		}
-		//append remaining nodes
-		saved_nodes[0]->next = reverseKGroup(temp, k);
 		//return
-		return saved_nodes[k-1];
+		return out;
     }
 };

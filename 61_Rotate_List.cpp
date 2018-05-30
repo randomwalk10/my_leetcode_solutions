@@ -24,30 +24,35 @@ struct ListNode {
     ListNode(int x) : val(x), next(NULL) {}
 };
 
-#include <vector>
+#include <stack>
 using namespace std;
 
 class Solution {
 public:
     ListNode* rotateRight(ListNode* head, int k) {
 		if( (head==NULL)||(k<=0) ) return head;
-		vector<ListNode *> node_vector;
+		stack<ListNode *> node_s;
 		ListNode* temp = head;
 		int node_len = 0;
 
-		do{
-			node_vector.push_back(temp);
+		while(temp){
+			node_s.push(temp);
 			temp = temp->next;
 			node_len++;
-		}while(temp);
+		};
 
+		ListNode* tail = node_s.top();
+		ListNode* cut = head;
 		for(int i=0; i<k%node_len; ++i){
-			node_vector.back()->next = node_vector.front();
-			node_vector.insert(node_vector.begin(), node_vector.back());
-			node_vector.pop_back();
-			node_vector.back()->next = NULL;
+			cut = node_s.top();
+			node_s.pop();
 		}
 
-		return *node_vector.begin();
+		if(k%node_len){
+			node_s.top()->next = NULL;
+			tail->next = head;
+		}
+
+		return cut;
     }
 };

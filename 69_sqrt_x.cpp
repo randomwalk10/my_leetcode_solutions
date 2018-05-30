@@ -23,14 +23,10 @@ public:
 		if(0==x) return 0;
 		int l=1, r=x;
 		int temp = l + (r-l)/2;
-		while(l<r){
-			if(temp>x/temp) r = temp - 1; 
+		while((r-l)>1){
+			if(temp>x/temp) r = temp;
 			else l = temp;
 			temp = l + (r-l)/2;
-			if(l==temp){
-				if(r<=x/r) return r;
-				else return l;
-			}
 		}
 		return l;
     }

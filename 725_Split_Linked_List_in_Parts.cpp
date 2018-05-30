@@ -70,19 +70,14 @@ public:
 			int cur_group_size = (num_of_plus_ones) ? \
 								 max_group_size : \
 								 (max_group_size - 1);
-			ListNode* sub_head = NULL;
-			ListNode* sub_temp = sub_head;
-			for(int j=0; j<cur_group_size; ++j){
-				if(sub_head){
-					sub_temp->next = new ListNode(temp->val);
-					sub_temp = sub_temp->next;
-				}
-				else{
-					sub_head = new ListNode(temp->val);
-					sub_temp = sub_head;
-				}
+			ListNode* sub_head = temp;
+			ListNode* sub_temp = NULL;
+			while(cur_group_size){
+				sub_temp = temp;
 				temp = temp->next;
+				cur_group_size--;
 			}
+			if(sub_temp) sub_temp->next = NULL;
 			output.push_back(sub_head);
 			//update
 			if(num_of_plus_ones) num_of_plus_ones--;

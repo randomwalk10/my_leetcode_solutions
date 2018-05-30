@@ -26,15 +26,18 @@ using namespace std;
 class Solution {
 public:
     int searchInsert(vector<int>& nums, int target) {
-		int l = 0;
-		int r = (int)nums.size() - 1;
+		if(nums.front()>=target) return 0;
+		else if(nums.back()==target) return nums.size() - 1;
+		else if(nums.back()<target) return nums.size();
+		int l = 0;//nums[l]<target
+		int r = nums.size() - 1;//nums[r]>target
 		int m;
-		while(l<=r){
+		while(r-l>1){
 			m = (l+r)>>1;
-			if(nums[m] > target) r = m - 1;
-			else if(nums[m] < target) l = m + 1;
+			if(nums[m] < target) l = m;
+			else if(nums[m] > target) r = m;
 			else return m;
 		}
-		return l;
+		return r;
     }
 };

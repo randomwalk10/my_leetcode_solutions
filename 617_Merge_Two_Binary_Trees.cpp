@@ -42,12 +42,13 @@ struct TreeNode {
 class Solution {
 public:
     TreeNode* mergeTrees(TreeNode* t1, TreeNode* t2) {
+		TreeNode* temp = NULL;
 		if((NULL==t1)&&(NULL==t2)) return NULL;
-		else if(NULL==t1) return t2;
-		else if(NULL==t2) return t1;
-		TreeNode* temp = new TreeNode(t1->val+t2->val);
-		temp->left = mergeTrees(t1->left, t2->left);
-		temp->right = mergeTrees(t1->right, t2->right);
+		else if(NULL==t1) temp = new TreeNode(t2->val);
+		else if(NULL==t2) temp = new TreeNode(t1->val);
+		else temp = new TreeNode(t1->val+t2->val);
+		temp->left = mergeTrees( (t1)?t1->left:t1, (t2)?t2->left:t2 );
+		temp->right = mergeTrees( (t1)?t1->right:t1, (t2)?t2->right:t2 );
 		return temp;
     }
 };

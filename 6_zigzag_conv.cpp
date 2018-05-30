@@ -11,6 +11,9 @@ Write the code that will take a string and make this conversion given a number o
 string convert(string text, int nRows);
 convert("PAYPALISHIRING", 3) should return "PAHNAPLSIIGYIR".
 */
+#include <string>
+using namespace std;
+
 class Solution {
 	public:
 		string convert(string s, int numRows) {
