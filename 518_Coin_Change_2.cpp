@@ -36,6 +36,7 @@ Output: 1
 #include <algorithm>
 using namespace std;
 
+/* exceeds time limitation(time complexity O(n**m), space complexity O(n), where n is amount, m is length of coins
 class Solution {
 private:
 	void change(int amount, vector<int>& coins, int start, int& count){
@@ -57,5 +58,24 @@ public:
 		this->change(amount, coins, 0, out);
 
 		return out;
+    }
+};
+*/
+
+/* dp method, time complexity O(n*m) and space complexity O(n), where n is amount, m is length of coins */
+class Solution {
+public:
+    int change(int amount, vector<int>& coins) {
+		vector<int> dp(amount+1, 0);
+		dp[0] = 1;
+
+		for(int i=0; i<(int)coins.size(); ++i){
+			for(int j=1; j<=amount; ++j){
+				if(j>=coins[i])
+					dp[j] += dp[j-coins[i]];
+			}
+		}
+
+		return dp[amount];
     }
 };
