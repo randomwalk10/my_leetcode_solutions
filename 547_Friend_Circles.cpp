@@ -29,7 +29,7 @@ If M[i][j] = 1, then M[j][i] = 1.
 */
 #include <vector>
 #include <unordered_set>
-#include <queue>
+#include <stack>
 using namespace std;
 
 class Solution {
@@ -39,31 +39,31 @@ public:
 		int N = (int)M.size();
 		unordered_set<int> visited;
 		unordered_set<int> remain;
-		queue<int> q;
+		stack<int> s;
 
 		for(int i=0; i<N; ++i) remain.insert(i);
 
 		while(!remain.empty()){
 			//start with an unvisited node
-			q.push(*remain.begin());
+			s.push(*remain.begin());
 
 			//transverse over all nodes directly or indirectly
 			//connected with the first node
-			while(!q.empty()){
-				//find the next node in queue
-				int node = q.front();
-				q.pop();
+			while(!s.empty()){
+				//find the next node in stack
+				int node = s.top();
+				s.pop();
 				if(visited.end()!=visited.find(node))
 					continue;
 				visited.insert(node);
 				remain.erase(remain.find(node));
 
 				//push all nodes directly connected
-				//to the current node and unvisited into q
+				//to the current node and unvisited into s
 				for(int i=0; i<N; ++i){
 					if( (i!=node) && M[node][i] && \
 							(visited.end()==visited.find(i)) )
-						q.push(i);
+						s.push(i);
 				}
 			}
 
