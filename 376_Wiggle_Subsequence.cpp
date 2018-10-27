@@ -30,43 +30,16 @@ class Solution {
 public:
     int wiggleMaxLength(vector<int>& nums) {
 		if(nums.empty()) return 0;
-		int res = 1;
-		vector<int> dp_cnt(nums.size(), 1);
-		vector<int> dp_trend(nums.size(), 0);//1: positive lately; -1: negative lately; 0: both
+		int up=1;//the longest length of wiggle subsequences that ends with upward move
+		int down=1;//the longest length of wiggle subsequences that ends with downward move
 
-		for(int i=0; i<(int)nums.size(); ++i){
-			for(int prev_i=0; prev_i<i; ++prev_i){
-				if(dp_cnt[prev_i]>=dp_cnt[i]){
-					if((dp_trend[prev_i]==0)&&(nums[prev_i]!=nums[i])){
-						dp_cnt[i] = dp_cnt[prev_i] + 1;
-						dp_trend[i] = (nums[i]>nums[prev_i]) ? 1 : -1;
-					}
-					else if((dp_trend[prev_i]==1)&&(nums[prev_i]>nums[i])){
-						dp_cnt[i] = dp_cnt[prev_i] + 1;
-						dp_trend[i] = -1;
-					}
-					else if((dp_trend[prev_i]==-1)&&(nums[prev_i]<nums[i])){
-						dp_cnt[i] = dp_cnt[prev_i] + 1;
-						dp_trend[i] = 1;
-					}
-				}
-				else if(dp_cnt[prev_i]+1==dp_cnt[i]){
-					if(dp_trend[i]==1){
-						if( (nums[prev_i]>nums[i]) && \
-								(dp_trend[prev_i]!=-1) )
-							dp_trend[i] = 0;
-					}
-					else if(dp_trend[i]==-1){
-						if( (nums[prev_i]<nums[i]) && \
-								(dp_trend[prev_i]!=1) )
-							dp_trend[i] = 0;
-					}
-				}
-			}
-
-			res = (dp_cnt[i]>res) ? dp_cnt[i] : res;
+		for(int i=1; i<(int)nums.size(); ++i){
+			if(nums[i]>nums[i-1])
+				up = (down+1>up) ? down+1 : up;
+			else if(nums[i]<nums[i-1])
+				down = (up+1>down) ? up+1 : down;
 		}
 
-		return res;
+		return (up>down)?up:down;
     }
 };
