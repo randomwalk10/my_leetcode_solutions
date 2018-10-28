@@ -16,32 +16,35 @@ The length of words[i] will be in the range of [1, 50].
 */
 #include <string>
 #include <vector>
-#include <set>
 
 using namespace std;
+vector<vector<int>> lut_list(50000, vector<int>(26, -1));
 
 class Solution {
 private:
-	bool isSubSeq(vector<multiset<int>>& lut_list, string& word){
+	bool isSubSeq(string& word, int max_len){
 		int j=0;
 		for(int i=0; i<(int)word.length(); ++i){
-			multiset<int>::iterator iter = lut_list[word[i]-'a'].lower_bound(j);
-			if(lut_list[word[i]-'a'].end()==iter) return false;
-			j = *iter + 1;
+			if(j>=max_len) return false;
+			j = lut_list[j][word[i]-'a'];
+			if(j<0) return false;
+			j++;
 		}
 		return true;
 	}
 public:
     int numMatchingSubseq(string S, vector<string>& words) {
 		int cnt=0;
-		vector<multiset<int>> lut_list(26, multiset<int>());
 
 		for(int i=0; i<(int)S.length(); ++i){
-			lut_list[S[i]-'a'].insert(i);
+			int idx = (int)S.length()-1-i;
+			if(i!=0) lut_list[idx] = lut_list[idx+1];
+			else lut_list[idx] = vector<int>(26, -1);
+			lut_list[idx][S[idx]-'a'] = idx;
 		}
 
 		for(int i=0; i<(int)words.size(); ++i){
-			if(isSubSeq(lut_list, words[i])) cnt++;
+			if(isSubSeq(words[i], (int)S.length())) cnt++;
 		}
 
 		return cnt;
