@@ -24,6 +24,8 @@ Follow up: Recursive solution is trivial, could you do it iteratively?
  * };
  */
 #include <vector>
+#include <stack>
+#include <unordered_set>
 using namespace std;
 struct TreeNode {
     int val;
@@ -33,18 +35,31 @@ struct TreeNode {
 };
 
 class Solution {
-private:
-	void postorderTraversal(TreeNode* root, vector<int>& res){
-		if(NULL==root) return;
-		postorderTraversal(root->left, res);
-		postorderTraversal(root->right, res);
-		res.push_back(root->val);
-	}
 public:
     vector<int> postorderTraversal(TreeNode* root) {
 		vector<int> out;
+		stack<TreeNode *> s;
+		unordered_set<TreeNode *> visited;
 
-		postorderTraversal(root, out);
+
+		if(NULL==root) return out;
+		s.push(root);
+		if(root->right) s.push(root->right);
+		if(root->left) s.push(root->left);
+		visited.insert(root);
+		while(!s.empty()){
+			TreeNode* new_node = s.top();
+			s.pop();
+			if(visited.end()!=visited.find(new_node)){
+				out.push_back(new_node->val);
+				continue;
+			}
+			visited.insert(new_node);
+
+			s.push(new_node);
+			if(new_node->right) s.push(new_node->right);
+			if(new_node->left) s.push(new_node->left);
+		}
 
 		return out;
     }
