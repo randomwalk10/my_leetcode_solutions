@@ -33,56 +33,50 @@ dislikes[i][0] < dislikes[i][1]
 There does not exist i != j for which dislikes[i] == dislikes[j].
 */
 #include <vector>
+#include <unordered_set>
+#include <stack>
 using namespace std;
 
 class Solution {
 public:
     bool possibleBipartition(int N, vector<vector<int>>& dislikes) {
-		vector<bool> left_group(N+1, false);
-		vector<bool> right_group(N+1, false);
-		vector<bool> placed_list(dislikes.size(), false);
-		bool exitFlag = false;
+		vector<vector<int>> graph(N+1, vector<int>());
+		vector<bool> visited(N+1, false);
+		unordered_set<int> remain;
+		stack<int> s;
+		vector<int> flags(N+1, -1);//0: group 0; 1: group 1; -1: not determined
 
-		while(!exitFlag){
-			left_group = vector<bool>(N+1, false);
-			right_group = vector<bool>(N+1, false);
+		for(int i=0; i<(int)dislikes.size(); ++i){
+			graph[dislikes[i][0]].push_back(dislikes[i][1]);
+			graph[dislikes[i][1]].push_back(dislikes[i][0]);
+			remain.insert(dislikes[i][0]);
+			remain.insert(dislikes[i][1]);
+		}
 
-			int count = 0;
-			int prev = 0;
+		while(!remain.empty()){
+			s.push(*(remain.begin()));
+			//depth first search
+			while(!s.empty()){
+				//get new node
+				int new_node = s.top();
+				s.pop();
+				if(visited[new_node]) continue;
+				visited[new_node] = true;
+				remain.erase(new_node);
+				//init flags at new_node for the very beginning
+				if(flags[new_node]<0) flags[new_node] = 0;
+				//add new edges to stack
+				for(int i=0; i<(int)graph[new_node].size(); ++i){
+					int next_node = graph[new_node][i];
 
-			do{
-				prev = count;
-				for(int i=0; i<(int)dislikes.size(); ++i){
-					if(placed_list[i]==false){
-						int l = dislikes[i][0];
-						int r = dislikes[i][1];
+					//flag checking
+					if(flags[next_node]<0) flags[next_node] = 1 - flags[new_node];
+					else if(flags[next_node]==flags[new_node]) return false;
 
-						if(count==0){
-							left_group[l] = true;
-							right_group[r] = true;
-							count++;
-							placed_list[i] = true;
-						}
-						else if( (left_group[l]&&left_group[r]) || \
-								(right_group[l]&&right_group[r]) )
-							return false;
-						else if(left_group[l]||right_group[r]){
-							left_group[l] = true;
-							right_group[r] = true;
-							count++;
-							placed_list[i] = true;
-						}
-						else if(right_group[l]||left_group[r]){
-							right_group[l] = true;
-							left_group[r] = true;
-							count++;
-							placed_list[i] = true;
-						}
-					}
+					if(!visited[next_node])
+						s.push(next_node);
 				}
-			} while(count!=prev);
-
-			if(0==count) exitFlag = true;
+			}
 		}
 
 		return true;
