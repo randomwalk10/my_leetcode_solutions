@@ -34,7 +34,7 @@ There does not exist i != j for which dislikes[i] == dislikes[j].
 */
 #include <vector>
 #include <unordered_set>
-#include <stack>
+#include <queue>
 using namespace std;
 
 class Solution {
@@ -43,7 +43,7 @@ public:
 		vector<vector<int>> graph(N+1, vector<int>());
 		vector<bool> visited(N+1, false);
 		unordered_set<int> remain;
-		stack<int> s;
+		queue<int> q;
 		vector<int> flags(N+1, -1);//0: group 0; 1: group 1; -1: not determined
 
 		for(int i=0; i<(int)dislikes.size(); ++i){
@@ -54,12 +54,12 @@ public:
 		}
 
 		while(!remain.empty()){
-			s.push(*(remain.begin()));
+			q.push(*(remain.begin()));
 			//depth first search
-			while(!s.empty()){
+			while(!q.empty()){
 				//get new node
-				int new_node = s.top();
-				s.pop();
+				int new_node = q.front();
+				q.pop();
 				if(visited[new_node]) continue;
 				visited[new_node] = true;
 				remain.erase(new_node);
@@ -74,7 +74,7 @@ public:
 					else if(flags[next_node]==flags[new_node]) return false;
 
 					if(!visited[next_node])
-						s.push(next_node);
+						q.push(next_node);
 				}
 			}
 		}
