@@ -23,17 +23,13 @@ public:
 		int l = 0;
 		int r = nums.size()-1;
 		//find the subarray that is not in ascending order
-		bool exitFlag = false;
-		while( (l<r)&&(!exitFlag) ){
-			exitFlag = true;
-			if(nums[l]<=nums[l+1]){
-				l++;
-				exitFlag = false;
-			}
-			if(nums[r-1]<=nums[r]){
-				r--;
-				exitFlag = false;
-			}
+		while(l<(int)nums.size()-1){
+			if(nums[l]<=nums[l+1]) l++;
+			else break;
+		}
+		while(r>0){
+			if(nums[r-1]<=nums[r]) r--;
+			else break;
 		}
 		if(l>=r) return 0;
 		//find minimal and maxmal elements for subarray[l,...,r]
@@ -44,13 +40,27 @@ public:
 			max_element = max(nums[i], max_element);
 		}
 		//expand this subarray to a minimal unsorted subarray
-		while( (l>0)&&(nums[l-1]>min_element) ){
-			l--;
+		int temp_l = 0;
+		int temp_r = l;
+		while(temp_l<temp_r){
+			int temp_mid = (temp_l+temp_r)/2;
+			if(nums[temp_mid]<=min_element) temp_l = temp_mid + 1;
+			else temp_r = temp_mid;
 		}
-		while( (r<(int)nums.size()-1)&&(nums[r+1]<max_element) ){
-			r++;
-		}
+		l = temp_r;
 		
+		temp_l = r;
+		temp_r = nums.size()-1;
+		while(temp_l<temp_r){
+			if(temp_l+1==temp_r){
+				temp_l = (max_element>nums[temp_r]) ? temp_r : temp_l;
+				break;
+			}
+			int temp_mid = (temp_l+temp_r)/2;
+			if(nums[temp_mid]>=max_element) temp_r = temp_mid - 1;
+			else temp_l = temp_mid;
+		}
+		r = temp_l;
 
 		return 1+(r-l);
     }
