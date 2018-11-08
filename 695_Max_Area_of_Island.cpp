@@ -21,38 +21,42 @@ Given the above grid, return 0.
 Note: The length of each dimension in the given grid does not exceed 50.
 */
 #include <vector>
+#include <stack>
 using namespace std;
 
 class Solution {
 private:
 	vector<vector<int>> offsets = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-	void dfs(vector<vector<int>>& grid, vector<vector<bool>>& visited, \
-			int& area, int r, int c){
-		area++;
-
-		for(size_t i=0; i<offsets.size(); ++i){
-			int new_r = r + offsets[i][0];
-			int new_c = c + offsets[i][1];
-			if( (new_r>=0)&&(new_c>=0)&&(new_r<(int)grid.size())&& \
-					(new_c<(int)grid[0].size())&&(grid[new_r][new_c])&& \
-					(!visited[new_r][new_c]) ){
-				visited[new_r][new_c] = true;
-				dfs(grid, visited, area, new_r, new_c);
-			}
-		}
-	}
 public:
     int maxAreaOfIsland(vector<vector<int>>& grid) {
 		vector<vector<bool>> visited(grid.size(), vector<bool>(grid[0].size(), false));
+		stack<vector<int>> s;
 		int res = 0;
 
 		for(int r=0; r<(int)grid.size(); ++r){
 			for(int c=0; c<(int)grid[0].size(); ++c){
-				//dfs
 				if( grid[r][c] && (!visited[r][c]) ){
+					//dfs
 					visited[r][c] = true;
+					s.push({r, c});
 					int temp = 0;
-					dfs(grid, visited, temp, r, c);
+					while(!s.empty()){
+						int r2 = s.top()[0];
+						int c2 = s.top()[1];
+						s.pop();
+						temp++;
+						for(size_t i=0; i<offsets.size(); ++i){
+							int new_r = r2 + offsets[i][0];
+							int new_c = c2 + offsets[i][1];
+							if( (new_r>=0)&&(new_c>=0)&&(new_r<(int)grid.size())&& \
+									(new_c<(int)grid[0].size())&&(grid[new_r][new_c])&& \
+									(!visited[new_r][new_c]) ){
+								visited[new_r][new_c] = true;
+								s.push({new_r, new_c});
+							}
+						}
+					}
+					//update res
 					res = max(res, temp);
 				}
 			}
