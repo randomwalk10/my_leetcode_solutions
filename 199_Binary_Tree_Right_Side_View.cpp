@@ -34,29 +34,19 @@ struct TreeNode {
 
 class Solution {
 private:
-	void fillInLayers(TreeNode* root, int idx, vector<vector<int>>& layers){
+	void findRightMostNodes(TreeNode* root, int idx, vector<int>& res){
 		if(NULL==root) return;
-		if(idx<(int)layers.size()){
-			layers[idx].push_back(root->val);
+		if(idx>=(int)res.size()){
+			res.push_back(root->val);
 		}
-		else{
-			layers.push_back({root->val});
-		}
-		fillInLayers(root->left, idx+1, layers);
-		fillInLayers(root->right, idx+1, layers);
+		//always right first
+		findRightMostNodes(root->right, idx+1, res);
+		findRightMostNodes(root->left, idx+1, res);
 	}
 public:
     vector<int> rightSideView(TreeNode* root) {
-		vector<vector<int>> layers;
 		vector<int> res;
-
-		//fill in layers(left to right)
-		fillInLayers(root, 0, layers);
-		//fill in res from layers
-		for(int i=0; i<(int)layers.size(); ++i){
-			res.push_back(layers[i].back());
-		}
-
+		findRightMostNodes(root, 0, res);
 		return res;
     }
 };
