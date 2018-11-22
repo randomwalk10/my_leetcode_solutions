@@ -34,23 +34,35 @@ private:
 	int longestIncreasingPath(vector<vector<int>>& matrix, \
 			vector<vector<int>>& path_lens, \
 			int r, int c){
-		if(path_lens[r][c]>0) return path_lens[r][c];
-		int res = 1;
+		stack<vector<int>> s;
 
-		for(int i=0; i<(int)diff.size(); ++i){
-			int new_r = r + diff[i][0];
-			int new_c = c + diff[i][1];
-			if( (new_r>=0)&&(new_r<(int)matrix.size())&& \
-					(new_c>=0)&&(new_c<(int)matrix[0].size())&& \
-					(matrix[new_r][new_c]>matrix[r][c]) ){
-				res = max(res, longestIncreasingPath(
-							matrix, path_lens, new_r, new_c) + 1);
+		s.push({r, c});
+		while(!s.empty()){
+			int temp_r = s.top()[0];
+			int temp_c = s.top()[1];
+			int temp_len = 1;
+			//search for neighbors
+			for(int i=0; i<(int)diff.size(); ++i){
+				int new_r = temp_r + diff[i][0];
+				int new_c = temp_c + diff[i][1];
+				if( (new_r>=0)&&(new_r<(int)matrix.size())&& \
+						(new_c>=0)&&(new_c<(int)matrix[0].size())&& \
+						(matrix[new_r][new_c]>matrix[temp_r][temp_c]) ){
+					if(path_lens[new_r][new_c]>0)
+						temp_len = max(temp_len,
+								path_lens[new_r][new_c]+1);
+					else
+						s.push({new_r, new_c});
+				}
+			}
+			//if no new neighbors, calculate for path_lens[temp_r][temp_c]
+			if( (temp_r==s.top()[0])&&(temp_c==s.top()[1]) ){
+				s.pop();
+				path_lens[temp_r][temp_c] = temp_len;
 			}
 		}
 
-		path_lens[r][c] = res;
-
-		return res;
+		return path_lens[r][c];
 	}
 public:
     int longestIncreasingPath(vector<vector<int>>& matrix) {
