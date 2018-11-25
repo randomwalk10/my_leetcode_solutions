@@ -26,44 +26,56 @@ The length of nums is at most 20000.
 Each element nums[i] is an integer in the range [1, 10000].
 */
 #include <vector>
-#include <map>
+#include <unordered_map>
 using namespace std;
 
 class Solution {
 public:
     int deleteAndEarn(vector<int>& nums) {
-		map<int, int> hist;
+		unordered_map<int, int> hist;//integer in nums array-> profits.
 		int have = 0, have_not = 0;
 		int res = 0;
+		int l, r;
 
 		//fill in hist
 		for(int i=0; i<(int)nums.size(); ++i){
-			map<int, int>::iterator iter = hist.find(nums[i]);
-			if(hist.end()!=iter) iter->second += nums[i];
-			else hist[nums[i]] = nums[i];
+			hist[nums[i]] += nums[i];
 		}
 
 		//find max profit
-		map<int, int>::iterator temp;
-		for(map<int, int>::iterator iter = hist.begin();
-				iter != hist.end(); ++iter){
-			//update have and have_not
-			if(hist.begin()==iter){
-				have = iter->second;
-				have_not = 0;
+		while(!hist.empty()){
+			l = hist.begin()->first;
+			r = l;
+			//expand l and r
+			bool exitFlag;
+			do{
+				exitFlag = true;
+				if(hist.end()!=hist.find(l-1)){
+					l--;
+					exitFlag = false;
+				}
+				if(hist.end()!=hist.find(r+1)){
+					r++;
+					exitFlag = false;
+				}
+			}while(!exitFlag);
+			//update profits
+			//remove keys ranging in [l, r]
+			for(int i=l; i<=r; ++i){
+				//update profits
+				unordered_map<int, int>::iterator iter = hist.find(i);
+				if(l==i){
+					have = res + iter->second;
+					have_not = res;
+				}
+				else{
+					have = have_not + iter->second;
+					have_not = res;
+				}
+				res = max(have, have_not);
+				//remove iter
+				hist.erase(iter);
 			}
-			else if(temp->first+1==iter->first){
-				have = have_not + iter->second;
-				have_not = res;
-			}
-			else{
-				have = res + iter->second;
-				have_not = res;
-			}
-			//update temp
-			temp = iter;
-			//update temp
-			res = max(have, have_not);
 		}
 
 		return res;
