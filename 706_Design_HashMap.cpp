@@ -26,31 +26,61 @@ The number of operations will be in the range of [1, 10000].
 Please do not use the built-in HashMap library.
 */
 #include <vector>
+#include <utility>
 using namespace std;
 
 class MyHashMap {
 private:
-	vector<int> m;
-	int MAX_RANGE = 1000001;
+	vector<vector<pair<int, int>>> m;
+	int r = 1000;
+	vector<pair<int, int>>::iterator find_key( \
+			vector<pair<int, int>>& l, int k){
+		vector<pair<int, int>>::iterator iter = l.begin();
+		for(; iter != l.end(); ++iter){
+			if(iter->first==k) break;
+		}
+		return iter;
+	}
 public:
     /** Initialize your data structure here. */
     MyHashMap() {
-		m.resize(MAX_RANGE, -1);
+		m.resize(r);
     }
 
     /** value will always be non-negative. */
     void put(int key, int value) {
-		m[key%MAX_RANGE] = value;
+		int i = key%r;
+		vector<pair<int, int>>::iterator iter \
+			= this->find_key(m[i], key);
+		if(iter==m[i].end()){
+			m[i].push_back(std::pair<int, int>(key, value));
+		}
+		else{
+			iter->second = value;
+		}
+		return;
     }
 
     /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
     int get(int key) {
-		return m[key%MAX_RANGE];
+		int i = key%r;
+		vector<pair<int, int>>::iterator iter \
+			= this->find_key(m[i], key);
+		if(iter==m[i].end()){
+			return -1;
+		}
+		return iter->second;
     }
 
     /** Removes the mapping of the specified value key if this map contains a mapping for the key */
     void remove(int key) {
-		m[key%MAX_RANGE] = -1;
+		int i = key%r;
+		vector<pair<int, int>>::iterator iter \
+			= this->find_key(m[i], key);
+		if(iter==m[i].end()){
+			return;
+		}
+		m[i].erase(iter);
     }
 };
 
