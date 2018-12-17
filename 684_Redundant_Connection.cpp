@@ -32,36 +32,39 @@ We have overhauled the problem description + test cases and specified clearly th
 using namespace std;
 
 class Solution {
+private:
+	int findParent(int node, vector<int>& parents){
+		while( parents[node]!=node ){
+			node = parents[node];
+		}
+		return node;
+	}
 public:
     vector<int> findRedundantConnection(vector<vector<int>>& edges) {
-		vector<int> grouping(edges.size()+1, 0);
-		vector<int> linking(edges.size()+1, 0);
+		int n = edges.size();
+		vector<int> parents(n+1, 0);
 		vector<int> res;
 
-		for(int i=0; i<(int)edges.size(); ++i){
-			int node_a = edges[i][0];
-			int node_b = edges[i][1];
-			if( grouping[node_a] && grouping[node_b] ){
-				if( linking[grouping[node_a]]==linking[grouping[node_b]] ){
-					res = {node_a, node_b};
-					break;
-				}
-				int temp_link = linking[grouping[node_b]];
-				for(int j=0; j<(int)linking.size(); ++j){
-					if(linking[j]==temp_link)
-						linking[j] = linking[grouping[node_a]];
-				}
+		//fill parents
+		for(int i=0; i<n; ++i){
+			parents[i] = i;
+		}
+
+		//find redundency
+		for(int i=0; i<n; ++i){
+			int node_u = edges[i][0];
+			int node_v = edges[i][1];
+			int parent_u = findParent(node_u, parents);
+			int parent_v = findParent(node_v, parents);
+			if(parent_u==parent_v){//node_u and node_v already connected
+				res = {node_u, node_v};
+				break;
 			}
-			else if(grouping[node_a]){
-				grouping[node_b] = grouping[node_a];
-			}
-			else if(grouping[node_b]){
-				grouping[node_a] = grouping[node_b];
+			else if(parent_u<parent_v){
+				parents[parent_v] = parent_u;
 			}
 			else{
-				grouping[node_a] = node_a;
-				grouping[node_b] = node_a;
-				linking[node_a] = node_a;
+				parents[parent_u] = parent_v;
 			}
 		}
 
