@@ -50,8 +50,9 @@ public:
 
 		//jump
 		steps[0].insert(1);
-		for(int i=0; i<n; ++i){
+		for(int i=0; i<n-1; ++i){
 			for(auto k: steps[i]){
+				if(stones[i]+k==stones[n-1]) return true;
 				unordered_map<int, int>::iterator iter = unit2index.find(stones[i]+k);
 				if(iter!=unit2index.end()){
 					if(k>1) steps[iter->second].insert(k-1);
@@ -61,6 +62,6 @@ public:
 			}
 		}
 
-		return !steps[n-1].empty();
+		return false;
     }
 };

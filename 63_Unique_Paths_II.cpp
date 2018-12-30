@@ -33,18 +33,23 @@ public:
 		int m = obstacleGrid.size();//rows
 		int n = obstacleGrid[0].size();//cols
 		if(obstacleGrid[m-1][n-1]) return 0;
+		if(obstacleGrid[0][0]) return 0;
 
 		vector<vector<int>> counts(m, vector<int>(n, 0));
 		counts[m-1][n-1] = 1;
+		for(int r = m-2; r>=0; --r)
+			if(obstacleGrid[r][n-1]==0)
+				counts[r][n-1] = counts[r+1][n-1];
+			else break;
+		for(int c = n-2; c>=0; --c)
+			if(obstacleGrid[m-1][c]==0)
+				counts[m-1][c] = counts[m-1][c+1];
+			else break;
 
-		for(int r = m-1; r>=0; --r){
-			for(int c = n-1; c>=0; --c){
-				if(obstacleGrid[r][c]==0){
-					if(r<m-1)
-						counts[r][c] += counts[r+1][c];
-					if(c<n-1)
-						counts[r][c] += counts[r][c+1];
-				}
+		for(int r = m-2; r>=0; --r){
+			for(int c = n-2; c>=0; --c){
+				if(obstacleGrid[r][c]==0)
+					counts[r][c] = counts[r+1][c] + counts[r][c+1];
 			}
 		}
 
