@@ -34,8 +34,8 @@ Explanation: The input is: [5,1,4,null,null,3,6]. The root node's value
  *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  * };
  */
-#include <climits>
-#define NULL 0
+#include <vector>
+using namespace std;
 struct TreeNode {
     int val;
     TreeNode *left;
@@ -45,17 +45,21 @@ struct TreeNode {
 
 class Solution {
 private:
-	bool isValidBST(TreeNode* root, int low, int high, \
-			bool lset, bool hset){
-		if(NULL==root) return true;
-		if( (lset&&(low>=root->val)) || \
-				(hset&&(high<=root->val)) ) return false;
-		if(!isValidBST(root->left, low, root->val, lset, true)) return false;
-		if(!isValidBST(root->right, root->val, high, true, hset)) return false;
-		return true;
+	void isValidBST(TreeNode* root, vector<int>& v){
+		if(NULL==root) return;
+		isValidBST(root->left, v);
+		v.push_back(root->val);
+		isValidBST(root->right, v);
 	}
 public:
     bool isValidBST(TreeNode* root) {
-		return isValidBST(root, INT_MIN, INT_MAX, false, false);
+		vector<int> v;
+		isValidBST(root, v);
+
+		for(int i=1; i<(int)v.size(); ++i){
+			if(v[i]<=v[i-1]) return false;
+		}
+
+		return true;
     }
 };
