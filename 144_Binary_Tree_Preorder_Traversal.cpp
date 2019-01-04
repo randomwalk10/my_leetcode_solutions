@@ -24,6 +24,7 @@ Follow up: Recursive solution is trivial, could you do it iteratively?
  * };
  */
 #include <vector>
+#include <stack>
 using namespace std;
 struct TreeNode {
     int val;
@@ -33,17 +34,23 @@ struct TreeNode {
 };
 
 class Solution {
-private:
-	void preorderTraversal(TreeNode* root, vector<int>& res){
-		if(root==NULL) return;
-		res.push_back(root->val);
-		preorderTraversal(root->left, res);
-		preorderTraversal(root->right, res);
-	}
 public:
     vector<int> preorderTraversal(TreeNode* root) {
 		vector<int> res;
-		preorderTraversal(root, res);
+		stack<TreeNode*> s;
+
+		//dfs
+		if(root) s.push(root);
+		while(!s.empty()){
+			//get new node
+			TreeNode* new_node = s.top();
+			s.pop();
+			res.push_back(new_node->val);
+			//search
+			if(new_node->right) s.push(new_node->right);
+			if(new_node->left) s.push(new_node->left);
+		}
+
 		return res;
     }
 };
