@@ -18,12 +18,13 @@ Note:
 You may assume that all words are consist of lowercase letters a-z.
 */
 #include <string>
+#include <unordered_map>
 using namespace std;
 
 struct Node{
 	Node(){
 	};
-	Node* child_[26] = {NULL};
+	unordered_map<char, Node*> child_;
 	bool stop_ = false;
 };
 
@@ -36,17 +37,17 @@ private:
 			return temp->stop_;
 		//'.'
 		if(word[pos]=='.'){
-			for(int i=0; i<26; ++i){
-				if( (temp->child_[i]) && \
-						search(word, pos+1, temp->child_[i]) ){
-					return true;
-				}
+			if(temp->child_.empty()) return false;
+			for(unordered_map<char, Node*>::iterator iter = \
+					temp->child_.begin(); iter != temp->child_.end(); \
+					++iter){
+				if(search(word, pos+1, iter->second)) return true;
 			}
 			return false;
 		}
 		//a-z
-		if(NULL==temp->child_[word[pos]-'a']) return false;
-		return search(word, pos+1, temp->child_[word[pos]-'a']);
+		if(temp->child_.end()==temp->child_.find(word[pos])) return false;
+		return search(word, pos+1, temp->child_[word[pos]]);
 	}
 public:
     /** Initialize your data structure here. */
@@ -59,9 +60,9 @@ public:
 		if(word.empty()) return;
 		Node* temp = head_;
 		for(int i=0; i<(int)word.size(); ++i){
-			if(NULL==temp->child_[word[i]-'a'])
-				temp->child_[word[i]-'a'] = new Node();
-			temp = temp->child_[word[i]-'a'];
+			if(temp->child_.end()==temp->child_.find(word[i]))
+				temp->child_[word[i]] = new Node();
+			temp = temp->child_[word[i]];
 		}
 		temp->stop_ = true;
     }
