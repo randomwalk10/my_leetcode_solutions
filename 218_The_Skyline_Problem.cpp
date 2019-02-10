@@ -19,57 +19,40 @@ There must be no consecutive horizontal lines of equal height in the output skyl
 
 #include <vector>
 #include <utility>
-#include <map>
+#include <set>
 using namespace std;
 
 class Solution {
 public:
     vector<pair<int, int>> getSkyline(vector<vector<int>>& buildings) {
-		//find critical points
-		map<int, pair<vector<int>, vector<int>>> cpoints;
+		vector<pair<int, int>> res;//heights at each critical points
+		set<int> key_points;
+		int prev_h = -1;
+		//fill key_points
 		for(int i=0; i<(int)buildings.size(); ++i){
 			int start_pos = buildings[i][0];
 			int end_pos = buildings[i][1];
-			cpoints[start_pos].first.push_back(i);//first of the pair is a list of rect indices starting at position start_pos
-			cpoints[end_pos].second.push_back(i);//second of the pair is a list of rect indices ending at position end_pos
+			key_points.insert(start_pos);
+			key_points.insert(end_pos);
 		}
-		
-		//find max height at critical points
-		vector<pair<int, int>> res;//heights at each critical points
-		map<int, int> height_counts;//counts of each height
-		int prev_h = -1;//previous height
-		for(map<int, pair<vector<int>, vector<int>>>::iterator kp = \
-				cpoints.begin(); kp != cpoints.end(); ++kp){
-			//add heights
-			for(vector<int>::iterator rect_idx = kp->second.first.begin(); \
-					rect_idx != kp->second.first.end(); ++rect_idx){
-				int height = buildings[*rect_idx][2];
-				map<int, int>::iterator count = height_counts.find(height);
-				if(height_counts.end()==count)
-					height_counts[height] = 1;
-				else
-					count->second += 1;
-			}
-			//remove heights
-			for(vector<int>::iterator rect_idx = kp->second.second.begin(); \
-					rect_idx != kp->second.second.end(); ++rect_idx){
-				int height = buildings[*rect_idx][2];
-				map<int, int>::iterator count = height_counts.find(height);
-				if(count->second==1)
-					height_counts.erase(count);
-				else
-					count->second -= 1;
-			}
-			//update height with the maxmal value at each critical point
+		//fill res
+		for(set<int>::iterator kp = key_points.begin();
+				kp != key_points.end(); ++kp){
+			//find max height at kp
 			int cur_h = 0;
-			if(!height_counts.empty()){
-				map<int, int>::iterator count = height_counts.end();
-				--count;//point to the last key
-				cur_h = count->first;
+			for(int i=0; i<(int)buildings.size(); ++i){
+				int start_pos = buildings[i][0];
+				int end_pos = buildings[i][1];
+				int height = buildings[i][2];
+				if(start_pos>*kp) break;
+				else if( (end_pos>*kp)&& \
+						(cur_h<height) ){
+					cur_h = height;
+				}
 			}
-			//avoid duplicates and update res
-			if(cur_h!=prev_h){
-				res.push_back({kp->first, cur_h});
+			//add to res if not duplicated
+			if(prev_h!=cur_h){
+				res.push_back({*kp, cur_h});
 				prev_h = cur_h;
 			}
 		}
