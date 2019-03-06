@@ -13,6 +13,7 @@ The rectangle inside the matrix must have an area > 0.
 What if the number of rows is much larger than the number of columns?
 */
 #include <vector>
+#include <set>
 using namespace std;
 
 class Solution {
@@ -21,22 +22,33 @@ public:
 		int rows = matrix.size();
 		int cols = matrix[0].size();
 		int res = INT_MIN;
-		vector<vector<int>> sums(rows+1, vector<int>(cols+1, 0));
+		int m = max(rows, cols); // longer dimension
+		int n = min(rows, cols); // shorter dimension
+		bool isRowLonger = (rows>cols);
 
-		for(int r=1; r<=rows; ++r){
-			for(int c=1; c<=cols; ++c){
-				// get the sum of rectangle with tl (1,1) and br (r, c)
-				sums[r][c] = matrix[r-1][c-1] + sums[r-1][c] + sums[r][c-1] - \
-							 sums[r-1][c-1];
-				// find the maximal sum of any rectangle with br at (r, c)
-				for(int ri=1; ri<=r; ++ri){
-					for(int ci=1; ci<=c; ++ci){
-						//update res
-						int temp = sums[r][c] + sums[ri-1][ci-1] - \
-								   sums[r][ci-1] - sums[ri-1][c];
-						if( temp==k ) return k;
-						else if( (temp<k)&&(temp>res) ) res = temp;
-					}
+		for(int i=0; i<n; ++i){ // start from i
+			vector<int> sums(m, 0); // a vector of sums for longer dimension
+			for(int j=i; j<n; ++j){ // end at j
+				// update sums
+				for(int p=0; p<m; ++p){
+					if(isRowLonger) sums[p] += matrix[p][j];
+					else sums[p] += matrix[j][p];
+				}
+
+				// find the max sum of subarrays of sums that is not larger than k
+				set<int> accur_sums = {0}; // add zero for cases where the subarray start at index 0
+				int cur_sums = 0;
+				for(int sum : sums){
+					// update cur_sums
+					cur_sums += sum;
+
+					// find an element past_sums in accur_sums that maximizes cur_sums - past_sums
+					// while making sure cur_sums - past_sums <= k 
+					set<int>::iterator iter = accur_sums.lower_bound(cur_sums - k);
+					if(iter!=accur_sums.end()) res = max(res, cur_sums - *iter);
+
+					// update accur_sums
+					accur_sums.insert(cur_sums);
 				}
 			}
 		}
