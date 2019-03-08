@@ -49,33 +49,28 @@ public:
 		vector<vector<bool>> is_visited(rows, vector<bool>(cols, false));
 		std::priority_queue<Element, std::vector<Element>, hasLargerValue> q;
 
-		// breadth first search with priority queue
-		q.push( Element(0, 0, matrix[0][0]) );
-		is_visited[0][0] = true;
+		// feed the first elment in each row into q
+		// time complexity O( rows * log(rows) )
+		for(int r=0; r<rows; ++r){
+			q.push( Element(r, 0, matrix[r][0]) );
+		}
+
+		// find the kth smallest
+		// time complexity k *( O(1) + O(rows) ) about O(rows^2*log(rows))
 		while(cnt<k){
-			// get new element from q
+			// find the next smallest element
 			Element new_node = q.top();
 			q.pop();
-
-			// add next elements to q
 			res = new_node.val_;
-			int cur_r = new_node.r_;
-			int cur_c = new_node.c_;
-			if( ( cur_r < rows - 1 ) && \
-					(!is_visited[cur_r+1][cur_c]) ){
-				q.push( Element(cur_r+1, cur_c, matrix[cur_r+1][cur_c]) ); 
-				is_visited[cur_r+1][cur_c] = true;
-			}
-			if( ( cur_c < cols - 1 ) && \
-					(!is_visited[cur_r][cur_c+1]) ){
-				q.push( Element(cur_r, cur_c+1, matrix[cur_r][cur_c+1]) ); 
-				is_visited[cur_r][cur_c+1] = true;
-			}
+
+			// feed the next candidate into q
+			int r = new_node.r_;
+			int c = new_node.c_;
+			if( c < cols - 1 ) q.push( Element(r, c+1, matrix[r][c+1]) ); 
 
 			// update cnt
 			++cnt;
 		}
-
 
 		// return
 		return res;
