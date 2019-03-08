@@ -46,7 +46,6 @@ public:
 		int res = 0;
 		int rows = matrix.size();
 		int cols = matrix[0].size();
-		vector<vector<bool>> is_visited(rows, vector<bool>(cols, false));
 		std::priority_queue<Element, std::vector<Element>, hasLargerValue> q;
 
 		// feed the first elment in each row into q
