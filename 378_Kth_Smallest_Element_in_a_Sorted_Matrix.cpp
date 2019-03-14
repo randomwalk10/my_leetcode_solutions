@@ -17,61 +17,48 @@ Note:
 You may assume k is always valid, 1 ≤ k ≤ n2.
 */
 #include <vector>
-#include <queue>
 using namespace std;
 
-class Element{
-public:
-	int r_;
-	int c_;
-	int val_;
-	Element(): r_(0), c_(0), val_(0) {};
-	Element(int r, int c, int val){
-		r_ = r;
-		c_ = c;
-		val_ = val;
-	};
-};
-
-struct hasLargerValue{
-	bool operator () (const Element& lhs, const Element& rhs){
-		return lhs.val_ > rhs.val_;
-	};
-};
-
 class Solution {
+private:
+	int findNumberElementsLessOrEqualTo(vector<vector<int>>& matrix, int row, int limit){
+		int lo = 0, hi = matrix[row].size() - 1;
+		if(matrix[row][lo]>limit) return 0;
+		else if(matrix[row][hi]<=limit) return matrix[row].size();
+		// now matrix[row][lo] <= limit < matrix[row][hi]
+		// do binary search until hi-lo==1
+		while(hi-lo>1){
+			int mid = (lo + hi) / 2;
+			if(matrix[row][mid]<=limit) lo = mid;
+			else hi = mid;
+		}
+		// return
+		return lo + 1;
+	}
 public:
     int kthSmallest(vector<vector<int>>& matrix, int k) {
-		int cnt = 0;
-		int res = 0;
+		//init
 		int rows = matrix.size();
 		int cols = matrix[0].size();
-		std::priority_queue<Element, std::vector<Element>, hasLargerValue> q;
-
-		// feed the first elment in each row into q
-		// time complexity O( rows * log(rows) )
-		for(int r=0; r<rows; ++r){
-			q.push( Element(r, 0, matrix[r][0]) );
+		//lo: the val that is the less or equal to the kth smallest element
+		//hi: the val that is greater or equal to the kth smallest element
+		int lo = matrix[0][0], hi = matrix[rows-1][cols-1];
+		//binary search
+		while(lo<hi){
+			int mid = (lo + hi) / 2;
+			// find the number of elements <= mid
+			int cnt = 0;
+			for(int r = 0; r < rows; ++r){
+				// find the number of elements <= mid in row r
+				cnt += findNumberElementsLessOrEqualTo(matrix, r, mid);
+				if(cnt>=k) break;
+			}
+			// if cnt < k, increase lo
+			// if cnt >= k, decrease hi
+			if(cnt < k) lo = mid + 1;
+			else hi = mid;
 		}
-
-		// find the kth smallest
-		// time complexity k *( O(1) + O(rows) ) about O(rows^2*log(rows))
-		while(cnt<k){
-			// find the next smallest element
-			Element new_node = q.top();
-			q.pop();
-			res = new_node.val_;
-
-			// feed the next candidate into q
-			int r = new_node.r_;
-			int c = new_node.c_;
-			if( c < cols - 1 ) q.push( Element(r, c+1, matrix[r][c+1]) ); 
-
-			// update cnt
-			++cnt;
-		}
-
-		// return
-		return res;
+		//return
+		return lo;
     }
 };
