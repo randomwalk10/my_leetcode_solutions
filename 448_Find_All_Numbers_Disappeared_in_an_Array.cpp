@@ -21,14 +21,18 @@ public:
     vector<int> findDisappearedNumbers(vector<int>& nums) {
 		if(nums.empty()) return vector<int>();
 		// fill in vector of availables
-		vector<bool> availables(nums.size(), false);
 		for(int i=0; i<(int)nums.size(); ++i){
-			availables[nums[i]-1] = true;
+			int temp = nums[i];
+			while(temp>0){
+				int temp2 = nums[temp-1];
+				nums[temp-1] = -temp;
+				temp = temp2;
+			}
 		}
 		// find missing numbers
 		vector<int> res;
 		for(int i=0; i<(int)nums.size(); ++i){
-			if(!availables[i]) res.push_back(i+1);
+			if(nums[i]>0) res.push_back(i+1);
 		}
 		// return
 		return res;
