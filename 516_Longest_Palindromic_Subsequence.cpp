@@ -25,25 +25,31 @@ public:
     int longestPalindromeSubseq(string s) {
 		int len = s.size();
 		if(len<=1) return len;
-		// construct a matrix dp where dp[i][j] represents the max length of palindromic subsequences in [i, j] of s
-		vector<vector<int>> dp(s.size(), vector<int>(s.size(), 0));
+		// construct a vector dp where dp[i] is the maximal length of subsequences in s[i:]
+		vector<int> dp(len, 1);
 
 		// perform dynamic programming to find dp[i][j] for any i<=j
-		for(int r=0; r<len; ++r){
-			dp[r][r] = 1;
+		for(int r=1; r<len; ++r){
+			int prev1 = 1; // maximal length of subseq in s[l+1:r+1]
+			int prev2 = 0; // maxmal length of subseq in s[l+1:r]
 			for(int l=r-1; l>=0; --l){
-				if(s[r]==s[l]){
-					if(r==l+1)
-						dp[l][r] = 2;
-					else
-						dp[l][r] = max(2+dp[l+1][r-1], dp[l][r]);
+				// store the maximal length of subseq in s[l:r]
+				int temp = dp[l];
+				// update dp[l]
+				if(s[l]==s[r]){
+					dp[l] = 2 + prev2;
 				}
-				dp[l][r] = max(dp[l+1][r], dp[l][r]);
-				dp[l][r] = max(dp[l][r-1], dp[l][r]);
+				else{
+					dp[l] = max(prev1, dp[l]);
+				}
+				// update prev2
+				prev2 = temp;
+				// update prev1
+				prev1 = dp[l];
 			}
 		}
 
 		// return
-		return dp[0][len-1];
+		return dp[0];
     }
 };
