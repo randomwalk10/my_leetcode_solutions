@@ -22,24 +22,27 @@ int timeStr2Int(string& input){
 	return hr*60+mi;
 }
 
-bool myCompare(string time_a, string time_b){
-	return timeStr2Int(time_a) < timeStr2Int(time_b);
-}
-
 class Solution {
 public:
     int findMinDifference(vector<string>& timePoints) {
+		int len = timePoints.size();
+		// fill in arrays of time points in integer
+		vector<int> timePointsInt(len, 0);
+		for(int i=0; i<len; ++i){
+			timePointsInt[i] = timeStr2Int(timePoints[i]);
+		}
+
 		// sort timePoints in ascending order
-		std::sort(timePoints.begin(), timePoints.end());
+		std::sort(timePointsInt.begin(), timePointsInt.end());
 
 		// iterate through timePoints and find the minimal difference in time;
 		int res = INT_MAX;
-		for(int i=0; i<(int)timePoints.size(); ++i){
+		for(int i=0; i<len; ++i){
 			if(i>0){
-				res = min(res, timeStr2Int(timePoints[i]) - timeStr2Int(timePoints[i-1]));
+				res = min(res, timePointsInt[i] - timePointsInt[i-1]);
 			}
 			else{
-				res = min(res, 24*60 + timeStr2Int(timePoints[0]) - timeStr2Int(timePoints[timePoints.size()-1]));
+				res = min(res, 24*60 + timePointsInt[0] - timePointsInt[len-1]);
 			}
 		}
 
