@@ -37,14 +37,10 @@ public:
 
 		// iterate through timePoints and find the minimal difference in time;
 		int res = INT_MAX;
-		for(int i=0; i<len; ++i){
-			if(i>0){
-				res = min(res, timePointsInt[i] - timePointsInt[i-1]);
-			}
-			else{
-				res = min(res, 24*60 + timePointsInt[0] - timePointsInt[len-1]);
-			}
+		for(int i=1; i<len; ++i){
+			res = min(res, timePointsInt[i] - timePointsInt[i-1]);
 		}
+		res = min(res, 24*60 + timePointsInt[0] - timePointsInt[len-1]);
 
 		// return
 		return res;
