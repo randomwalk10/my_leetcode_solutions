@@ -29,29 +29,34 @@ using namespace std;
 class Solution {
 public:
     int minimumDeleteSum(string s1, string s2) {
+		// this is an improved version from one where minSums is of 2d
 		int len1 = s1.size();
 		int len2 = s2.size();
-		vector<vector<int>> minSums(len1+1, vector<int>(len2+1, 0)); // minSums[i][j] is the minimum delete sum of substrings s1[i:] and s2[j:]
+		vector<int> minSums(len2+1, 0); // minSums[j] is the minimum delete sums of a substring of s1 and s2[j:]
 
-		// fill the borders of minSums
-		for(int i=len1-1; i>=0; --i){
-			minSums[i][len2] = minSums[i+1][len2] + s1[i];
-		}
+		// initialize minSums with the minimul delete sums of empty string and s2[j:]
 		for(int j=len2-1; j>=0; --j){
-			minSums[len1][j] = minSums[len1][j+1] + s2[j];
+			minSums[j] = minSums[j+1] + s2[j];
 		}
 
 		// dynamic programming
 		for(int i=len1-1; i>=0; --i){
+			int temp = minSums[len2];
+			minSums[len2] += s1[i];
 			for(int j=len2-1; j>=0; --j){
-				minSums[i][j] = min(minSums[i][j+1]+s2[j], minSums[i+1][j]+s1[i]);
+				// store the old minSums[j]
+				int temp2 = minSums[j];
+				// update minSums[j]
+				minSums[j] = min(minSums[j+1]+s2[j], minSums[j]+s1[i]);
 				if(s1[i]==s2[j]){
-					minSums[i][j] = min(minSums[i][j], minSums[i+1][j+1]);
+					minSums[j] = min(minSums[j], temp);
 				}
+				// update temp
+				temp = temp2;
 			}
 		}
 
 		// return
-		return minSums[0][0];
+		return minSums[0];
     }
 };
