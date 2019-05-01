@@ -32,24 +32,20 @@ Every integer represented in the 2D-array will be between 1 and N, where N is th
 */
 
 #include <vector>
-#include <unordered_set>
 using namespace std;
 
 class Solution {
 private:
-	int getRoot(int cur_node, vector<int>& parents, unordered_set<int>& visited){
-		if(visited.end()!=visited.find(cur_node)) return cur_node;
-		visited.insert(cur_node);
-		if(cur_node!=parents[cur_node]){
-			return getRoot(parents[cur_node], parents, visited);
+	int getRoot(int node, vector<int>& parents){
+		if(node!=parents[node]){
+			return getRoot(parents[node], parents);
 		}
-		return cur_node;
+		return node;
 	}
 public:
     vector<int> findRedundantDirectedConnection(vector<vector<int>>& edges) {
 		int len = edges.size();
 		vector<int> parents(len+1, 0);
-		unordered_set<int> visited;
 		// iterate through edges
 		vector<int> candidate_a, candidate_b;
 		for(int i=0; i<len; ++i){
@@ -61,31 +57,22 @@ public:
 				parents[edges[i][1]] = edges[i][0];
 			}
 		}
-		// case that there is a node with two parents
-		// remove one of the two edges
-		if(!candidate_a.empty()){
-			// detect if node candidate_a[1] is in a cycle
-			// if yes, return candidate_a
-			// otherwise, return candidate_b
-			visited.insert(candidate_a[1]);
-			if(getRoot(candidate_a[0], parents, visited)==candidate_a[1])
-				return candidate_a;
-			return candidate_b;
+		// case one where there is a node with two parents
+		// remove the last one that makes the tree valid
+		// case two where every node has exactly one parent
+		// find the node that forms a cycle
+		for(int i=1; i<=len; ++i){
+			parents[i] = i; // form a group of one for each node
 		}
-		// case that every node has exactly one parent
-		// find the node that is in a cycle
-		vector<int> res;
-		for(int i=len-1; i>=0; --i){
-			// check if node edges[i][1] is in a cycle or not
-			visited.clear();
-			visited.insert(edges[i][1]);
-			parents[edges[i][1]] = getRoot(edges[i][0], parents, visited);
-			if(edges[i][1]==parents[edges[i][1]]){
-				res = edges[i];
-				break;
+		for(int i=0; i<len; ++i){
+			if(edges[i]==candidate_b) continue; // skip edge that is candidate_b
+			parents[edges[i][1]] = getRoot(edges[i][0], parents);
+			if(parents[edges[i][1]]==edges[i][1]){
+				if(!candidate_a.empty()) return candidate_a;
+				else return edges[i];
 			}
 		}
 		// return the redundant edge
-		return res;
+		return candidate_b;
     }
 };
