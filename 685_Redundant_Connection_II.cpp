@@ -32,78 +32,55 @@ Every integer represented in the 2D-array will be between 1 and N, where N is th
 */
 
 #include <vector>
-#include <unordered_map>
 #include <unordered_set>
-#include <queue>
 using namespace std;
 
 class Solution {
 private:
-	bool couldNodeBeRoot(int node, unordered_map<int, unordered_set<int>>& children, int len){
-		// bfs
-		unordered_set<int> visited;
-		queue<int> q;
-		q.push(node);
-		visited.insert(node);
-		while(!q.empty()){
-			//get new node
-			int new_node = q.front();
-			q.pop();
-			//add children of the new node
-			if(children.end()!=children.find(new_node)){
-				for(unordered_set<int>::iterator iter = children[new_node].begin(); \
-						iter != children[new_node].end(); ++iter){
-					if(visited.end()==visited.find(*iter)){
-						q.push(*iter);
-						visited.insert(*iter);
-					}
-				}
-			}
+	int getRoot(int cur_node, vector<int>& parents, unordered_set<int>& visited){
+		if(visited.end()!=visited.find(cur_node)) return cur_node;
+		visited.insert(cur_node);
+		if(cur_node!=parents[cur_node]){
+			return getRoot(parents[cur_node], parents, visited);
 		}
-		// return
-		return (int)visited.size() == len;
+		return cur_node;
 	}
 public:
     vector<int> findRedundantDirectedConnection(vector<vector<int>>& edges) {
-		unordered_map<int, vector<int>> parents;
-		unordered_map<int, unordered_set<int>> children;
 		int len = edges.size();
+		vector<int> parents(len+1, 0);
+		unordered_set<int> visited;
 		// iterate through edges
+		vector<int> candidate_a, candidate_b;
 		for(int i=0; i<len; ++i){
-			parents[edges[i][1]].push_back(edges[i][0]);
-			children[edges[i][0]].insert(edges[i][1]);
+			if(parents[edges[i][1]]>0){ // node edges[i][1] has two parents
+				candidate_a = {parents[edges[i][1]], edges[i][1]};
+				candidate_b = edges[i];
+			}
+			else{
+				parents[edges[i][1]] = edges[i][0];
+			}
 		}
 		// case that there is a node with two parents
 		// remove one of the two edges
-		if((int)parents.size()<len){
-			// find root node and the two edges
-			int root;
-			vector<vector<int>> candidates;
-			for(int i=1; i<=len; ++i){
-				unordered_map<int, vector<int>>::iterator iter = parents.find(i);
-				if(parents.end()==iter){
-					root = i;
-				}
-				else if(iter->second.size()==2){
-					candidates.push_back( {iter->second[0], i} );
-					candidates.push_back( {iter->second[1], i} );
-				}
-			}
-			// remove one that is redundant
-			for(int i=1; i>=0; --i){
-				unordered_map<int, unordered_set<int>>::iterator iter = children.find(candidates[i][0]);
-				iter->second.erase( iter->second.find(candidates[i][1]) );
-				if(couldNodeBeRoot(root, children, len))
-					return candidates[i];
-				iter->second.insert( candidates[i][1] );
-			}
+		if(!candidate_a.empty()){
+			// detect if node candidate_a[1] is in a cycle
+			// if yes, return candidate_a
+			// otherwise, return candidate_b
+			visited.insert(candidate_a[1]);
+			if(getRoot(candidate_a[0], parents, visited)==candidate_a[1])
+				return candidate_a;
+			return candidate_b;
 		}
 		// case that every node has exactly one parent
-		// find the node that could be root and remove the edge with this node as child
+		// find the node that is in a cycle
 		vector<int> res;
 		for(int i=len-1; i>=0; --i){
-			// check if node edges[i][1] could be the root
-			if(couldNodeBeRoot(edges[i][1], children, len)){
+			// check if node edges[i][1] is in a cycle or not
+			visited.clear();
+			visited.insert(edges[i][1]);
+			parents[edges[i][1]] = getRoot(edges[i][0], parents, visited);
+			if(edges[i][1]==parents[edges[i][1]]){
 				res = edges[i];
 				break;
 			}
