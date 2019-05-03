@@ -23,6 +23,7 @@ class Solution {
 public:
     int numSubarrayProductLessThanK(vector<int>& nums, int k) {
 		if(nums.empty()) return 0;
+		if(k<1) return 0;
 		int res = 0;
 		int len = nums.size();
 
@@ -30,37 +31,13 @@ public:
 		int l = 0, r = 0;
 		int p = 1;
 		while(r<len){
-			int temp_p = p * nums[r];
-			if((temp_p/nums[r]==p)&&(temp_p<k)){
-				// update res
-				res += r + 1 - l;
-				// update r
-				++r;
-				// update p
-				p = temp_p;
+			p *= nums[r];
+			while((p>=k)&&(l<=r)){
+				p /= nums[l];
+				++l;
 			}
-			else{
-				// find the minial l where the product of nums[l:r+1] < k
-				bool isFound = false;
-				while(l<r){
-					p /= nums[l];
-					++l;
-					temp_p = p * nums[r];
-					if((temp_p/nums[r]==p)&&(temp_p<k)){
-						p = temp_p;
-						isFound = true;
-						break;
-					}
-				}
-				if(isFound){
-					res += r + 1 - l;
-					++r;
-				}
-				else{ // no valid subarray is found
-					l = ++r;
-					p = 1;
-				}
-			}
+			res += r + 1 - l;
+			++r;
 		}
 
 		// return
