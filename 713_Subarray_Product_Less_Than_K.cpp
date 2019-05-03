@@ -24,31 +24,46 @@ public:
     int numSubarrayProductLessThanK(vector<int>& nums, int k) {
 		if(nums.empty()) return 0;
 		int res = 0;
+		int len = nums.size();
 
-		int r = -1;
-		int start = 0;
+		// sliding window (O(n) in time and O(1) in space)
+		int l = 0, r = 0;
 		int p = 1;
-		for(int i=0; i<(int)nums.size(); ++i){
-			// prepare start and p
-			if(r<i){ // nums[i:r+1] is not valid subarray
-				start = i;
-				p = 1;
+		while(r<len){
+			int temp_p = p * nums[r];
+			if((temp_p/nums[r]==p)&&(temp_p<k)){
+				// update res
+				res += r + 1 - l;
+				// update r
+				++r;
+				// update p
+				p = temp_p;
 			}
 			else{
-				start = r + 1;
-				p = p / nums[i-1];
+				// find the minial l where the product of nums[l:r+1] < k
+				bool isFound = false;
+				while(l<r){
+					p /= nums[l];
+					++l;
+					temp_p = p * nums[r];
+					if((temp_p/nums[r]==p)&&(temp_p<k)){
+						p = temp_p;
+						isFound = true;
+						break;
+					}
+				}
+				if(isFound){
+					res += r + 1 - l;
+					++r;
+				}
+				else{ // no valid subarray is found
+					l = ++r;
+					p = 1;
+				}
 			}
-			// update r and p
-			for(int j=start; j<(int)nums.size(); ++j){
-				if(p*nums[j]/nums[j]!=p) break; // integer overflow
-				if(p*nums[j]>=k) break; // product of subarray nums[i:j+1] >= k
-				r = j;
-				p *= nums[j];
-			}
-			// update res
-			if(r>=i) res += r - i + 1;
 		}
 
+		// return
 		return res;
     }
 };
