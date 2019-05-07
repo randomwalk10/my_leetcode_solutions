@@ -18,82 +18,55 @@ All the numbers in the input array are in the range of 32-bit integer.
 */
 
 #include <vector>
+#include <algorithm>
 using namespace std;
 
-struct Node{
-	Node* zero_;
-	Node* one_;
-	int cnt_;
-	Node(): zero_(NULL), one_(NULL), cnt_(0){}
-};
-
 class Solution {
-	int count(int input, Node* header){
-		int half = (input>>1);
-		half |= input&(1<<31);// keep the - sign if there is one
-		bool isOdd = input&0x1;
+	int search(int idx, vector<int>& bits){
 		int res = 0;
-		// count all numbers that is less than half
-		// if isOdd==true, count numbers that equals half as well
-		int bit_pos = 31;
-		int mask;
-		while(header&&(bit_pos>=0)){
-			// update mask
-			mask = 1<<bit_pos;
-			// update res
-			if( (mask<0)&&((half&mask)==0)&&(header->one_) ){
-				res += header->one_->cnt_;
-			}	
-			else if( (mask>0)&&(half&mask)&&(header->zero_) ){
-				res += header->zero_->cnt_;
-			}
-			// move header to its child
-			header = (half&mask)?header->one_:header->zero_;
-			// update bit_pos;
-			--bit_pos;
+		while(idx<(int)bits.size()){ // if idx==(int)bits.size() then idx is invalid according to index()
+			res += bits[idx];
+			idx += idx & (-idx);
 		}
-		if(header&&isOdd) res += header->cnt_;
-		// return
 		return res;
 	}
-	void update(int input, Node* header){
-		int bit_pos = 31;
-		int mask;
-		while(bit_pos>=0){
-			// update mask
-			mask = 1<<bit_pos;
-			// update header
-			if(input&mask){
-				if(NULL==header->one_){
-					header->one_ = new Node();
-				}
-				header->one_->cnt_ += 1;
-				header = header->one_;
-			}
-			else{
-				if(NULL==header->zero_){
-					header->zero_ = new Node();
-				}
-				header->zero_->cnt_ += 1;
-				header = header->zero_;
-			}
-			// update bit_pos
-			--bit_pos;
+	void insert(int idx, vector<int>& bits){
+		while(idx>0){//initial idx is in [1, bits.size()-1]
+			++bits[idx];
+			idx -= idx & (-idx);
 		}
+	}
+	int index(long long input, vector<int>& copy){
+		int l = 0; // the right most idx where copy[l] < input 
+		int r = copy.size() - 1; // the left most idx where copy[r] >= input
+
+		// binary search
+		if((long long)copy[l] >= input) return 0;
+		else if((long long)copy[r] < input) return r+1;
+		while(l+1<r){
+			int m = l + ((r-l)>>1);
+			if((long long)copy[m]>=input) r = m;
+			else l = m; 
+		}
+
+		// return
+		return r;
 	}
 public:
     int reversePairs(vector<int>& nums) {
 		if(nums.size()<2) return 0;
 		int res = 0;
 		int len = nums.size();
-		Node* header = new Node(); // head of a list that counts the number of integers at each bit position
+		vector<int> copy(nums);
+		vector<int> bits(len+1, 0);
+
+		// sort the copy of nums
+		std::sort(copy.begin(), copy.end());
 
 		// iterate backwards through nums
-		for(int i=len-1; i>=0; --i){
-			// update res with half of nums[i]
-			res += count(nums[i], header);
-			// add nums[i] into the list
-			update(nums[i], header);
+		for(int i=0; i<len; ++i){
+			res += search(index(2*(long long)nums[i]+1, copy)+1, bits);
+			insert(index(nums[i], copy)+1, bits);
 		}
 
 		// return
