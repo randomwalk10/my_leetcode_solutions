@@ -26,7 +26,7 @@ public:
     int matrixScore(vector<vector<int>>& A) {
 		int res = 0;
 		int rows = A.size(), cols = A[0].size();
-		vector<int> row_flips(rows, 0);
+		int row_flips = 0;
 
 		// iterate through each column
 		for(int c=0; c<cols; ++c){
@@ -34,11 +34,11 @@ public:
 			// iterate through each row
 			for(int r=0; r<rows; ++r){
 				if(0==c){
-					if(A[r][c]==0) row_flips[r] = 1;
+					if(A[r][c]==0) row_flips |= 1<<r;
 					++tmp;
 				}
 				else{
-					tmp += A[r][c]^row_flips[r];
+					tmp += A[r][c]^((row_flips&(1<<r))>>r);
 				}
 			}
 			// flip tmp if tmp <= rows / 2
