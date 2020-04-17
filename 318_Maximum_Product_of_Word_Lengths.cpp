@@ -42,7 +42,7 @@ public:
 
 		for (int i = 0; i < (int)words.size(); ++i) {
 			for (int j = i+1; j < (int)words.size(); ++j) {
-				if( (codes[i]^codes[j])==(codes[i]+codes[j]) ){
+				if( (codes[i]&codes[j])==0 ){
 					int temp = words[i].size()*words[j].size();
 					res = (temp>res) ? temp : res;
 				}
