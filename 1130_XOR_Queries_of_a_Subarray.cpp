@@ -34,31 +34,17 @@ class Solution {
 public:
     vector<int> xorQueries(vector<int>& arr, vector<vector<int>>& queries) {
 		vector<int> res;
-		vector<vector<int>> s(arr.size(), vector<int>(32, 0));
+		vector<int> s;
 
 		for (int i = 0; i < (int)arr.size(); ++i) {
-			for (int j = 0; j < 32; ++j) {
-				if(arr[i]&(1<<j)){
-					if(i==0) s[i][j] = 1;
-					else s[i][j] = s[i-1][j] + 1;
-				}
-				else{
-					if(i==0) s[i][j] = 0;
-					else s[i][j] = s[i-1][j];
-				}
-			}
+			if(i==0) s.push_back(arr[i]);
+			else s.push_back(s[i-1]^arr[i]);
 		}
 
 		for (int i = 0; i < (int)queries.size(); ++i) {
 			int l = queries[i][0];
 			int r = queries[i][1];
-			int temp = 0;
-			for (int j = 0; j < 32; ++j) {
-				int mask = 1<<j;
-				int one_cnt = s[r][j] - s[l][j];
-				if(arr[l]&mask) ++one_cnt;
-				if(one_cnt%2) temp |= mask;
-			}
+			int temp = s[l]^s[r]^arr[l];
 			res.push_back(temp);
 		}
 
