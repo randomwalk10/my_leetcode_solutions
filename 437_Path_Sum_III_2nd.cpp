@@ -16,46 +16,38 @@ public:
 		stack<TreeNode*> s_parent;
 		stack<bool> s_visited;
 		unordered_map<int, int> m_cnt;
+		int cur_sum = 0;
 		int res = 0;
 
 		s_parent.push(root);
 		s_visited.push(false);
+		m_cnt[0] = 1;
 		while(!s_parent.empty()){
 			TreeNode* tmp_node = s_parent.top(); s_parent.pop();
 			bool is_visited = s_visited.top(); s_visited.pop();
 
 			if(is_visited){
 				// update m_cnt
-				unordered_map<int, int>::iterator iter = m_cnt.find(tmp_node->val);
+				unordered_map<int, int>::iterator iter = m_cnt.find(cur_sum);
 				if(iter->second==1){
 					m_cnt.erase(iter);
 				}
 				else{
 					iter->second -= 1;
 				}
-
-				unordered_map<int, int> tmp_m;
-				for(unordered_map<int, int>::iterator iter=m_cnt.begin();
-						iter!=m_cnt.end(); ++iter){
-					tmp_m[iter->first-tmp_node->val] = iter->second;
-				}
-				m_cnt = tmp_m;
+				// update cur_sum
+				cur_sum -= tmp_node->val;
 			}
 			else{
-				// update m_cnt
-				unordered_map<int, int> tmp_m;
-				for(unordered_map<int, int>::iterator iter=m_cnt.begin();
-						iter!=m_cnt.end(); ++iter){
-					tmp_m[iter->first+tmp_node->val] = iter->second;
-				}
-				tmp_m[tmp_node->val] += 1;
-				m_cnt = tmp_m;
-
+				// update cur_sum
+				cur_sum += tmp_node->val;
 				// update res
-				unordered_map<int, int>::iterator iter = m_cnt.find(sum);
+				unordered_map<int, int>::iterator iter = m_cnt.find(cur_sum-sum);
 				if(iter!=m_cnt.end()){
 					res += iter->second;
 				}
+				// update m_cnt
+				m_cnt[cur_sum] += 1;
 
 				//post order
 				//self
