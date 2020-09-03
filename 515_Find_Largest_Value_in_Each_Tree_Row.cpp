@@ -1,54 +1,56 @@
 /*
-You need to find the largest value in each row of a binary tree.
+Given the root of a binary tree, return an array of the largest value in each row of the tree (0-indexed).
 
-Example:
-Input: 
-
-          1
-         / \
-        3   2
-       / \   \  
-      5   3   9 
-
-Output: [1, 3, 9]
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/find-largest-value-in-each-tree-row
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
 
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
- * };
- */
-#define NULL 0
+#include <stack>
 #include <vector>
 using namespace std;
+
 struct TreeNode {
     int val;
     TreeNode *left;
     TreeNode *right;
-    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
 
 class Solution {
 public:
-	void findLargetValues(TreeNode* root, int base_level, vector<int> &max_values){
-		if(NULL==root) return;
-		if((int)max_values.size()<(base_level+1)){
-			max_values.push_back(root->val);
-		}
-		else{
-			max_values[base_level] = (max_values[base_level]<root->val) ? \
-									 root->val : max_values[base_level];
-		}
-		findLargetValues(root->left, base_level+1, max_values);
-		findLargetValues(root->right, base_level+1, max_values);
-	}
     vector<int> largestValues(TreeNode* root) {
-		vector<int> max_values;
-		findLargetValues(root, 0, max_values);
-		return max_values;
+		vector<int> res;
+		stack<TreeNode*> s;
+		stack<int> s_d;
+
+		if(root){
+			s.push(root);
+			s_d.push(0);
+		}
+		while(!s.empty()){
+			TreeNode* tmp = s.top(); s.pop();
+			int d = s_d.top(); s_d.pop();
+
+			if(d<res.size()){
+				res[d] = (tmp->val>res[d])?tmp->val:res[d];
+			}
+			else{
+				res.push_back({tmp->val});
+			}
+
+			if(tmp->right){
+				s.push(tmp->right);
+				s_d.push(d+1);
+			}
+			if(tmp->left){
+				s.push(tmp->left);
+				s_d.push(d+1);
+			}
+		}
+
+		return res;
     }
 };
