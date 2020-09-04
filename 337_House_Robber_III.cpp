@@ -14,33 +14,29 @@ Input: [3,2,3,null,3,null,1]
      3   1
 
 Output: 7 
-Explanation: Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
+Explanation: Maximum amount of money the thief can rob = 3 + 3 + 1 = 7.
 Example 2:
 
 Input: [3,4,5,1,3,null,1]
 
-     3
+     3
     / \
    4   5
   / \   \ 
  1   3   1
 
 Output: 9
-Explanation: Maximum amount of money the thief can rob = 4 + 5 = 9.
+Explanation: Maximum amount of money the thief can rob = 4 + 5 = 9.
+
+来源：力扣（LeetCode）
+链接：https://leetcode-cn.com/problems/house-robber-iii
+著作权归领扣网络所有。商业转载请联系官方授权，非商业转载请注明出处。
 */
 
-/**
- * Definition for a binary tree node.
- * struct TreeNode {
- *     int val;
- *     TreeNode *left;
- *     TreeNode *right;
- *     TreeNode(int x) : val(x), left(NULL), right(NULL) {}
- * };
- */
+#include <stack>
 #include <unordered_map>
-#include <vector>
 using namespace std;
+
 struct TreeNode {
     int val;
     TreeNode *left;
@@ -49,33 +45,64 @@ struct TreeNode {
 };
 
 class Solution {
-private:
-	void rob(TreeNode* root, unordered_map<TreeNode *, vector<int>>& res){
-	if(NULL==root) return;
-	rob(root->left, res);
-	rob(root->right, res);
-
-	int cnt1 = root->val;
-	int cnt2 = 0;
-	if(root->left){
-		cnt1 += res[root->left][1];
-		cnt2 += max(res[root->left][0], res[root->left][1]);
-	}
-	if(root->right){
-		cnt1 += res[root->right][1];
-		cnt2 += max(res[root->right][0], res[root->right][1]);
-	}
-
-	vector<int> cnts = {cnt1, cnt2};
-	res[root] = cnts;
-}
 public:
     int rob(TreeNode* root) {
-		if(NULL==root) return 0;
-		unordered_map<TreeNode*, vector<int>> res;
+		stack<TreeNode*> s;
+		stack<bool> s_v;
+		unordered_map<TreeNode*, int> m_robbed;
+		unordered_map<TreeNode*, int> m_spared;
+		int res = 0;
 
-		rob(root, res);
+		if(root){
+			s.push(root);
+			s_v.push(false);
+		}
+		while(!s.empty()){
+			TreeNode* tmp = s.top(); s.pop();
+			bool visited = s_v.top(); s_v.pop();
 
-		return max(res[root][0], res[root][1]);
+			if(visited){
+				int sum1 = tmp->val;
+				if(tmp->left){
+					sum1 += m_spared[tmp->left];
+				}
+				if(tmp->right){
+					sum1 += m_spared[tmp->right];
+				}
+				m_robbed[tmp] = sum1;
+
+				int sum2 = 0;
+				if(tmp->left){
+					if(m_spared[tmp->left]>m_robbed[tmp->left])
+						sum2 += m_spared[tmp->left];
+					else
+						sum2 += m_robbed[tmp->left];
+				}
+				if(tmp->right){
+					if(m_spared[tmp->right]>m_robbed[tmp->right])
+						sum2 += m_spared[tmp->right];
+					else
+						sum2 += m_robbed[tmp->right];
+				}
+				m_spared[tmp] = sum2;
+
+				res = (sum1>sum2)?sum1:sum2;
+			}
+			else{
+				//post order
+				s.push(tmp);
+				s_v.push(true);
+				if(tmp->right){
+					s.push(tmp->right);
+					s_v.push(false);
+				}
+				if(tmp->left){
+					s.push(tmp->left);
+					s_v.push(false);
+				}
+			}
+		}
+
+		return res;
     }
 };
